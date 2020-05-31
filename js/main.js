@@ -141,9 +141,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('scroll', showModalByScroll);
-
-
-
-    
-
 });
