@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Timer
 
-    const deadline = '2020-06-03';
+    const deadline = '2020-06-16';
 
     function timeLeft(time) {
         const t = Date.parse(time) - Date.parse(new Date()),
@@ -97,12 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal() {
         modalWindow.style.display = 'block';
         document.body.style.overflow = 'hidden';
-        clearTimeout(modelTimer);
+        clearTimeout(modalTimer);
     }
     
     function closeModal() {
         modalWindow.style.display = 'none';
         document.body.style.overflow = '';
+        formAppear();
     }
 
     modalBtn.forEach( (btn) => {
@@ -127,13 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modelTimer = setTimeout(() => {
+    const modalTimer = setTimeout(() => {
         openModal();
         console.log('vremya');
-    }, 3000);
+    }, 50000);
 
     function showModalByScroll() {
-        if (window.pageYOffset + document.documentElement.scrollTop >= document.documentElement.scrollHeight) {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
             openModal();
             console.log(document.documentElement.scrollHeight);
             window.removeEventListener('scroll', showModalByScroll);
@@ -141,4 +142,191 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('scroll', showModalByScroll);
+
+    //Menu items
+
+    class MenuCard {
+        constructor (src, alt, title, descr, price, parentSelector, ...classes) {
+            this.src = src;
+            this.alt = alt;
+            this.title = title;
+            this.descr = descr;
+            this.price = price;
+            this.classes = classes;
+            this.parent = document.querySelector(parentSelector);
+            this.transfer = 27;
+            this.changeToUAH();
+        }
+
+        changeToUAH () {
+            this.price = this.price * this.transfer;
+        }
+
+        render () {
+            let element = document.createElement('div');
+
+            if(this.classes.length === 0) {
+                this.classes = 'menu__item';
+                element.classList.add(this.classes);
+            } else {
+                this.classes.forEach(className => element.classList.add(className));
+            }
+
+            element.innerHTML = `
+                <img src=${this.src} alt=${this.alt}>
+                <h3 class="menu__item-subtitle">${this.title}</h3>
+                <div class="menu__item-descr">${this.descr}</div>
+                <div class="menu__item-divider"></div>
+                <div class="menu__item-price">
+                    <div class="menu__item-cost">Цена:</div>
+                    <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+                </div>
+            `;
+
+            this.parent.append(element);
+        }
+    }
+
+    new MenuCard (
+        "img/tabs/vegy.jpg",
+        "vegy",
+        'Меню "Фитнес"',
+        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+        9,
+        '.menu .container'
+    ).render();
+
+    new MenuCard (
+        "img/tabs/elite.jpg",
+        "elite",
+        'Меню “Премиум”',
+        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+        14,
+        '.menu .container'
+    ).render();
+
+    new MenuCard (
+        "img/tabs/post.jpg",
+        "post",
+        'Меню "Постное"',
+        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+        21,
+        '.menu .container'
+    ).render();
+
+    //Forms FormData
+
+    // const forms = document.querySelectorAll('form'),
+    //       message = {
+    //           loading: 'Загрузка...',
+    //           success: 'Спасибо! Мы обязательно с вами свяжемся.',
+    //           failure: 'Что-то пошло не так. Попробуйте еще раз.'
+    //       },
+    //       wrapper = document.createElement('div');
+    
+    // forms.forEach((item) => {
+    //     sentData(item);
+    // });
+
+    // function sentData (arg) {
+    //     arg.addEventListener ('submit', (e) => {
+    //         e.preventDefault();
+
+    //         const request = new XMLHttpRequest();
+    //         request.open('POST', 'server.php');
+
+    //         const formData = new FormData(arg);
+            
+    //         request.send(formData);
+    //         arg.append(wrapper);
+    //         wrapper.textContent = message.loading;
+
+    //         request.addEventListener('load', () => {
+    //             if(request.status == 200) {
+    //                 wrapper.textContent = message.success;
+    //                 arg.reset();
+    //                 setTimeout(() => {
+    //                     wrapper.remove();
+    //                     if(modalWindow.style.display == 'block') {
+    //                         closeModal();
+    //                     }
+    //                 }, 3000);
+    //             } else {
+    //                 wrapper.textContent = message.failure;
+    //             }
+    //         });
+    //     });
+    // }
+    
+    // Forms JSON
+
+    const forms = document.querySelectorAll('form'),
+          message = {
+              loading: 'Загрузка...',
+              success: 'Спасибо! Ожидайте звонка.',
+              failure: 'Что-то пошло не так. Попробуйте еще раз.'
+          },
+          formModal = document.querySelector('.modal__form'),
+          titleModal = document.querySelector('.modal__title');
+    
+    
+    function formDelete () {
+        formModal.style.display = 'none';
+    }
+    
+    function formAppear () {
+        if(formModal.style.display == 'none') {
+            formModal.style.display = 'block';
+        }
+        titleModal.textContent = 'МЫ СВЯЖЕМСЯ С ВАМИ КАК МОЖНО БЫСТРЕЕ!';
+    }
+
+    function timeout() {
+        setTimeout(() => {
+            closeModal();                    
+        }, 3000);
+    }
+
+    function statusModal (status) {
+        openModal();
+        formDelete();
+        titleModal.textContent = status;
+    }
+
+    function sentData (form) {
+        form.addEventListener ('submit', (e) => {
+            e.preventDefault();
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+
+            const formData = new FormData(form),
+                  obj = {};
+
+            formData.forEach((item, i) => {
+                obj[i] = item;
+            });
+
+            const json = JSON.stringify(obj);
+            
+            request.send(json);
+            
+            statusModal(message.loading);
+
+            request.addEventListener('load', () => {
+                if(request.status == 200) {
+                    statusModal(message.success);
+                    form.reset();
+                    timeout();
+                } else {
+                    statusModal(message.failure);
+                    timeout();
+                }
+            });
+        });
+    }
+    
+    forms.forEach((item) => {
+        sentData(item);
+    });
 });
