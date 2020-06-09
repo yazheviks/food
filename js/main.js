@@ -262,12 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const forms = document.querySelectorAll('form'),
           message = {
-              loading: 'Загрузка...',
+              loading: 'img/original.svg',
               success: 'Спасибо! Ожидайте звонка.',
               failure: 'Что-то пошло не так. Попробуйте еще раз.'
           },
           formModal = document.querySelector('.modal__form'),
           titleModal = document.querySelector('.modal__title');
+    let element;
     
     
     function formDelete () {
@@ -310,10 +311,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const json = JSON.stringify(obj);
             
             request.send(json);
+
+            function addSpinner () {
+                element = document.createElement('img');
+                element.src = message.loading;
+                element.style.cssText = `
+                    display: block;
+                    margin: 10px auto;
+                `;
+                document.querySelector('.modal__content').append(element);
+                titleModal.textContent = 'Загрузка...';
+            }
+
+            function deleteSpinner () {
+                element.style.display = 'none';
+            }
             
-            statusModal(message.loading);
+            addSpinner();
+            formDelete();
+            openModal();
 
             request.addEventListener('load', () => {
+                deleteSpinner();
                 if(request.status == 200) {
                     statusModal(message.success);
                     form.reset();
