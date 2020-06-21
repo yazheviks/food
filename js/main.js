@@ -294,12 +294,24 @@ document.addEventListener('DOMContentLoaded', () => {
         titleModal.textContent = status;
     }
 
+    function addSpinner () {
+        element = document.createElement('img');
+        element.src = message.loading;
+        element.style.cssText = `
+            display: block;
+            margin: 10px auto;
+        `;
+        document.querySelector('.modal__content').append(element);
+        titleModal.textContent = 'Загрузка...';
+    }
+
+    function deleteSpinner () {
+        element.style.display = 'none';
+    }
+
     function sentData (form) {
         form.addEventListener ('submit', (e) => {
             e.preventDefault();
-
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
 
             const formData = new FormData(form),
                   obj = {};
@@ -308,40 +320,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 obj[i] = item;
             });
 
-            const json = JSON.stringify(obj);
-            
-            request.send(json);
-
-            function addSpinner () {
-                element = document.createElement('img');
-                element.src = message.loading;
-                element.style.cssText = `
-                    display: block;
-                    margin: 10px auto;
-                `;
-                document.querySelector('.modal__content').append(element);
-                titleModal.textContent = 'Загрузка...';
-            }
-
-            function deleteSpinner () {
-                element.style.display = 'none';
-            }
-            
             addSpinner();
             formDelete();
             openModal();
 
-            request.addEventListener('load', () => {
+            fetch('server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(obj)
+            })
+            .then(() => {
+                statusModal(message.success);
+            })
+            .catch(() => {
+                statusModal(message.failure);
+            })
+            .finally(() => {
                 deleteSpinner();
-                if(request.status == 200) {
-                    statusModal(message.success);
-                    form.reset();
-                    timeout();
-                } else {
-                    statusModal(message.failure);
-                    timeout();
-                }
-            });
+                form.reset();
+                timeout();
+            });            
         });
     }
     
