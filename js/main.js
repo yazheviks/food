@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Timer
 
-    const deadline = '2020-06-16';
+    const deadline = '2020-07-02';
 
     function timeLeft(time) {
         const t = Date.parse(time) - Date.parse(new Date()),
